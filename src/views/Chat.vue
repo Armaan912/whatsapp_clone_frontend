@@ -272,7 +272,7 @@ async function markExistingMessagesAsRead(conversationId) {
 }
 
 onMounted(() => {
-	socket.value = io("http://localhost:5000");
+	socket.value = io("https://whatsapp-clone-backend-bf71.onrender.com");
 	socket.value.emit("join_room", {
 		roomId: user.id || user._id,
 		userId: user.id || user._id
