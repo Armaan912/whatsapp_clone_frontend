@@ -9,7 +9,6 @@
             {{ m.text }}
             <div class="message-footer">
               <small class="text-muted time">{{ dayjs(m.createdAt).format('HH:mm') }}</small>
-              <!-- Status indicators for sent messages -->
               <div v-if="m.senderId === currentUserId" class="status-indicators">
                 <i v-if="m.status === 'sent'" class="fas fa-check status-sent"></i>
                 <i v-else-if="m.status === 'delivered'" class="fas fa-check-double status-delivered"></i>
@@ -46,12 +45,10 @@ const props = defineProps({
   margin-bottom: 0;
 }
 
-/* Ensure messages are properly spaced */
 .message-window > div {
   margin-bottom: 0.5rem;
 }
 
-/* Style for message bubbles */
 .message-window .message-bubble {
   display: inline-block;
   max-width: 70%;
@@ -60,7 +57,6 @@ const props = defineProps({
   position: relative;
 }
 
-/* Message footer with time and status */
 .message-footer {
   display: flex;
   align-items: center;
@@ -74,7 +70,6 @@ const props = defineProps({
   font-size: 0.75rem;
 }
 
-/* Status indicators */
 .status-indicators {
   display: flex;
   align-items: center;
@@ -101,7 +96,6 @@ const props = defineProps({
   color: #bdbdbd;
 }
 
-/* Right-aligned messages (sent by current user) */
 .text-end .message-footer {
   flex-direction: row-reverse;
 }

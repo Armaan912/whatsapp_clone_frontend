@@ -17,15 +17,12 @@ const router = createRouter({
   routes
 });
 
-// Auth guard
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
   
   if (to.meta.requiresAuth && !token) {
-    // User needs auth but doesn't have token
     next("/login");
   } else if (token && (to.path === "/login" || to.path === "/signup")) {
-    // User has token but trying to access auth pages
     next("/chat");
   } else {
     next();

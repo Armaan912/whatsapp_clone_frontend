@@ -12,14 +12,12 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from "vue";
 import api from "../api/axios";
 
 const contacts = ref([]);
 const user = JSON.parse(localStorage.getItem("user") || "{}");
-
 const emit = defineEmits(["select-contact"]);
 
 async function loadContacts() {

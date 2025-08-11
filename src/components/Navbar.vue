@@ -2,13 +2,11 @@
   <nav class="navbar">
     <div class="container-fluid px-3">
       <div class="d-flex justify-content-between align-items-center w-100">
-        <!-- Left side - Logo -->
         <div class="navbar-brand">
           <i class="fab fa-whatsapp text-success me-2"></i>
           <span class="brand-text">WhatsApp Web</span>
         </div>
 
-        <!-- Right side - Profile dropdown -->
         <div class="user-dropdown ms-auto" v-if="user">
           <button
             class="btn user-dropdown-btn p-1"
@@ -67,7 +65,6 @@ const router = useRouter();
 const showUserDropdown = ref(false);
 const user = ref(null);
 
-// Get user from localStorage
 onMounted(() => {
   const userData = localStorage.getItem("user");
   if (userData) {
@@ -99,8 +96,6 @@ const navigateToProfile = () => {
   router.push("/profile");
 };
 
-
-
 const handleLogout = () => {
   showUserDropdown.value = false;
   localStorage.removeItem("token");
@@ -112,7 +107,6 @@ const getProfileImage = () => {
   if (user.value?.profilePic) {
     return user.value.profilePic;
   }
-  // Return default avatar SVG
   return "/default-avatar.svg";
 };
 </script>
@@ -304,7 +298,6 @@ const getProfileImage = () => {
   margin: 0;
 }
 
-/* Responsive adjustments */
 @media (max-width: 576px) {
   .brand-text {
     font-size: 1.25rem;

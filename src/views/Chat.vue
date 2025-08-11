@@ -166,23 +166,19 @@ async function selectContact(contact) {
 			});
 		}
 
-			const res = await api.get(`/messages/${data._id}`);
-	messages.value = res.data;
-	
-	// Apply global statuses to loaded messages and store new ones
-	messages.value.forEach(msg => {
-		const globalStatus = globalMessageStatuses.value.get(msg._id);
-		if (globalStatus && globalStatus !== msg.status) {
-			msg.status = globalStatus;
-		} else {
-			globalMessageStatuses.value.set(msg._id, msg.status);
-		}
-	});
-	
-	console.log("Applied global statuses to", messages.value.length, "messages");
-	console.log("Global statuses:", Array.from(globalMessageStatuses.value.entries()));
+		const res = await api.get(`/messages/${data._id}`);
+		messages.value = res.data;
+		
+		messages.value.forEach(msg => {
+			const globalStatus = globalMessageStatuses.value.get(msg._id);
+			if (globalStatus && globalStatus !== msg.status) {
+				msg.status = globalStatus;
+			} else {
+				globalMessageStatuses.value.set(msg._id, msg.status);
+			}
+		});
 
-	await markExistingMessagesAsRead(data._id);
+		await markExistingMessagesAsRead(data._id);
 
 		nextTick(() => {
 			scrollToBottom();
@@ -225,15 +221,11 @@ async function sendMessage(text) {
 }
 
 function updateMessageStatus(messageId, status) {
-	console.log("Updating message status:", messageId, "to", status);
 	globalMessageStatuses.value.set(messageId, status);
 	
 	const messageIndex = messages.value.findIndex((m) => m._id === messageId);
 	if (messageIndex !== -1) {
 		messages.value[messageIndex].status = status;
-		console.log("Updated local message status");
-	} else {
-		console.log("Message not in current conversation, but status stored globally");
 	}
 }
 
@@ -286,7 +278,6 @@ onMounted(() => {
 		userId: user.id || user._id
 	});
 	
-	// Sync any existing message statuses from localStorage
 	const savedStatuses = localStorage.getItem("messageStatuses");
 	if (savedStatuses) {
 		try {
@@ -294,9 +285,7 @@ onMounted(() => {
 			parsed.forEach(([id, status]) => {
 				globalMessageStatuses.value.set(id, status);
 			});
-		} catch (e) {
-			// Ignore parsing errors
-		}
+		} catch (e) {}
 	}
 
 	socket.value.on("receive_message", (msg) => {
@@ -344,7 +333,6 @@ onMounted(() => {
 	});
 
 	socket.value.on("messages_marked_read", (data) => {
-		console.log("Received messages marked as read:", data);
 		if (data.userId !== (user.id || user._id)) {
 			messages.value.forEach((msg) => {
 				if (msg.senderId === data.userId && msg.status !== "read") {
@@ -356,21 +344,17 @@ onMounted(() => {
 	});
 
 	socket.value.on("message_status_update", (data) => {
-		console.log("Received message status update:", data);
 		updateMessageStatus(data.messageId, data.status);
 	});
 
 	socket.value.on("connect", () => {});
-
 	socket.value.on("disconnect", () => {});
-
 	socket.value.on("connect_error", (error) => {});
 
 	nextTick(() => {
 		scrollToBottom();
 	});
 	
-	// Watch global message statuses and save to localStorage
 	watch(globalMessageStatuses, (newStatuses) => {
 		localStorage.setItem("messageStatuses", JSON.stringify(Array.from(newStatuses.entries())));
 	}, { deep: true });

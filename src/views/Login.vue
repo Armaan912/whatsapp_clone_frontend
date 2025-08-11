@@ -25,7 +25,6 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref } from "vue";
 import api from "../api/axios";

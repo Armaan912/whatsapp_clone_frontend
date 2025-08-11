@@ -110,7 +110,6 @@ const getProfileImage = () => {
 };
 
 const editPhoto = () => {
-  // TODO: Implement photo upload functionality
   alert("Photo upload functionality coming soon!");
 };
 
@@ -125,14 +124,12 @@ const updateProfile = async () => {
       bio: formData.value.bio
     });
 
-    // Update local storage
     const updatedUser = { ...user.value, ...data };
     localStorage.setItem("user", JSON.stringify(updatedUser));
     user.value = updatedUser;
 
     successMsg.value = "Profile updated successfully!";
     
-    // Clear success message after 3 seconds
     setTimeout(() => {
       successMsg.value = "";
     }, 3000);
