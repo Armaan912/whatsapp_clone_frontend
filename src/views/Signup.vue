@@ -9,20 +9,56 @@
 
         <div class="mb-3">
           <label class="form-label">Username</label>
-          <input v-model="username" type="text" class="form-control" placeholder="Choose a username" />
+          <input 
+            v-model="username" 
+            type="text" 
+            class="form-control" 
+            :class="{ 'is-invalid': v$.username.$error }"
+            placeholder="Choose a username" 
+            @blur="v$.username.$touch()"
+          />
+          <div v-if="v$.username.$error" class="invalid-feedback">
+            {{ v$.username.$errors[0].$message }}
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Mobile</label>
-          <input v-model="mobile" type="text" class="form-control" placeholder="Enter your mobile number" />
+          <input 
+            v-model="mobile" 
+            type="text" 
+            class="form-control" 
+            :class="{ 'is-invalid': v$.mobile.$error }"
+            placeholder="Enter your mobile number" 
+            @blur="v$.mobile.$touch()"
+          />
+          <div v-if="v$.mobile.$error" class="invalid-feedback">
+            {{ v$.mobile.$errors[0].$message }}
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Password</label>
-          <input v-model="password" type="password" class="form-control" placeholder="Choose a password" />
+          <input 
+            v-model="password" 
+            type="password" 
+            class="form-control" 
+            :class="{ 'is-invalid': v$.password.$error }"
+            placeholder="Choose a password" 
+            @blur="v$.password.$touch()"
+          />
+          <div v-if="v$.password.$error" class="invalid-feedback">
+            {{ v$.password.$errors[0].$message }}
+          </div>
         </div>
 
-        <button @click="registerUser" class="btn btn-success w-100 mb-3">Create Account</button>
+        <button 
+          @click="registerUser" 
+          class="btn btn-success w-100 mb-3"
+          :disabled="v$.$invalid"
+        >
+          Create Account
+        </button>
 
         <p class="text-center mb-0">
           Already have an account? <router-link to="/login" class="text-decoration-none">Login</router-link>
@@ -34,6 +70,8 @@
 
 <script setup>
 import { ref } from "vue";
+import { useVuelidate } from '@vuelidate/core';
+import { required, minLength, helpers } from '@vuelidate/validators';
 import api from "../api/axios";
 import { useRouter } from "vue-router";
 
@@ -44,7 +82,30 @@ const password = ref("");
 const errorMsg = ref("");
 const successMsg = ref("");
 
+// Validation rules
+const rules = {
+  username: { 
+    required: helpers.withMessage('Username is required', required),
+    minLength: helpers.withMessage('Username must be at least 3 characters', minLength(3))
+  },
+  mobile: { 
+    required: helpers.withMessage('Mobile number is required', required),
+    validMobile: helpers.withMessage('Please enter a valid mobile number', 
+      helpers.regex(/^[0-9]{10,15}$/))
+  },
+  password: { 
+    required: helpers.withMessage('Password is required', required),
+    minLength: helpers.withMessage('Password must be at least 6 characters', minLength(6))
+  }
+};
+
+const v$ = useVuelidate(rules, { username, mobile, password });
+
 async function registerUser() {
+  // Validate before submission
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
+
   try {
     await api.post("/auth/signup", {
       username: username.value,

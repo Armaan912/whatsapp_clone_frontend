@@ -7,15 +7,41 @@
 
         <div class="mb-3">
           <label class="form-label">Mobile</label>
-          <input v-model="mobile" type="text" class="form-control" placeholder="Enter your mobile number" />
+          <input 
+            v-model="mobile" 
+            type="text" 
+            class="form-control" 
+            :class="{ 'is-invalid': v$.mobile.$error }"
+            placeholder="Enter your mobile number" 
+            @blur="v$.mobile.$touch()"
+          />
+          <div v-if="v$.mobile.$error" class="invalid-feedback">
+            {{ v$.mobile.$errors[0].$message }}
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Password</label>
-          <input v-model="password" type="password" class="form-control" placeholder="Enter your password" />
+          <input 
+            v-model="password" 
+            type="password" 
+            class="form-control" 
+            :class="{ 'is-invalid': v$.password.$error }"
+            placeholder="Enter your password" 
+            @blur="v$.password.$touch()"
+          />
+          <div v-if="v$.password.$error" class="invalid-feedback">
+            {{ v$.password.$errors[0].$message }}
+          </div>
         </div>
 
-        <button @click="loginUser" class="btn btn-success w-100 mb-3">Login</button>
+        <button 
+          @click="loginUser" 
+          class="btn btn-success w-100 mb-3"
+          :disabled="v$.$invalid"
+        >
+          Login
+        </button>
 
         <p class="text-center mb-0">
           No account? <router-link to="/signup" class="text-decoration-none">Sign up</router-link>
@@ -27,6 +53,8 @@
 
 <script setup>
 import { ref } from "vue";
+import { useVuelidate } from '@vuelidate/core';
+import { required, minLength, helpers } from '@vuelidate/validators';
 import api from "../api/axios";
 import { useRouter } from "vue-router";
 
@@ -35,7 +63,26 @@ const mobile = ref("");
 const password = ref("");
 const errorMsg = ref("");
 
+// Validation rules
+const rules = {
+  mobile: { 
+    required: helpers.withMessage('Mobile number is required', required),
+    validMobile: helpers.withMessage('Please enter a valid mobile number', 
+      helpers.regex(/^[0-9]{10,15}$/))
+  },
+  password: { 
+    required: helpers.withMessage('Password is required', required),
+    minLength: helpers.withMessage('Password must be at least 6 characters', minLength(6))
+  }
+};
+
+const v$ = useVuelidate(rules, { mobile, password });
+
 async function loginUser() {
+  // Validate before submission
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
+
   try {
     const { data } = await api.post("/auth/login", {
       mobile: mobile.value,
