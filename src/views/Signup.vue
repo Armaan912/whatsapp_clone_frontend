@@ -55,7 +55,6 @@
         <button 
           @click="registerUser" 
           class="btn btn-success w-100 mb-3"
-          :disabled="v$.$invalid"
         >
           Create Account
         </button>

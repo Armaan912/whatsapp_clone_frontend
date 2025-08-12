@@ -38,7 +38,6 @@
         <button 
           @click="loginUser" 
           class="btn btn-success w-100 mb-3"
-          :disabled="v$.$invalid"
         >
           Login
         </button>
